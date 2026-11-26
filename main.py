@@ -16,11 +16,18 @@ ENTRY = (
 
 
 def validate(text):
-    """The gate allows UTF-8 text of 1-200 characters, not only whitespace."""
+    """The gate allows UTF-8 text of 1-200 characters, not only whitespace.
+
+    A text message must also be one clean message: no control characters
+    other than the trailing newline the writer adds on disk.
+    """
     if not text.strip():
         raise SystemExit("entry must not be only whitespace")
     if not 1 <= len(text) <= MAX_CHARS:
         raise SystemExit(f"entry must be 1-{MAX_CHARS} chars, got {len(text)}")
+    bad = [c for c in text if ord(c) < 32 and c not in ("\t",)]
+    if bad:
+        raise SystemExit(f"entry must not contain control characters: {bad!r}")
     return text
 
 
